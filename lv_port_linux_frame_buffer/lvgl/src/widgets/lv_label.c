@@ -867,6 +867,14 @@ static void draw_main(lv_event_t * e)
         lv_txt_get_size(&size, label->text, label_draw_dsc.font, label_draw_dsc.letter_space, label_draw_dsc.line_space,
                         LV_COORD_MAX, flag);
 
+        /*Draw the text again below the original to make a circular effect */
+        if(size.y > lv_area_get_height(&txt_coords)) {
+            label_draw_dsc.ofs_x = label->offset.x;
+            label_draw_dsc.ofs_y = label->offset.y + size.y + lv_font_get_line_height(label_draw_dsc.font);
+
+            lv_draw_label(draw_ctx, &label_draw_dsc, &txt_coords, label->text, hint);
+        }
+
         /*Draw the text again on label to the original to make a circular effect */
         if(size.x > lv_area_get_width(&txt_coords)) {
             label_draw_dsc.ofs_x = label->offset.x + size.x +
@@ -876,13 +884,7 @@ static void draw_main(lv_event_t * e)
             lv_draw_label(draw_ctx, &label_draw_dsc, &txt_coords, label->text, hint);
         }
 
-        /*Draw the text again below the original to make a circular effect */
-        if(size.y > lv_area_get_height(&txt_coords)) {
-            label_draw_dsc.ofs_x = label->offset.x;
-            label_draw_dsc.ofs_y = label->offset.y + size.y + lv_font_get_line_height(label_draw_dsc.font);
 
-            lv_draw_label(draw_ctx, &label_draw_dsc, &txt_coords, label->text, hint);
-        }
     }
 
     draw_ctx->clip_area = clip_area_ori;
@@ -930,6 +932,41 @@ static void lv_label_refr_text(lv_obj_t * obj)
         lv_anim_set_repeat_delay(&a, a.playback_delay);
 
         bool hor_anim = false;
+
+        if(size.y > lv_area_get_height(&txt_coords) && hor_anim == false) {
+            lv_anim_set_values(&a, 0, lv_area_get_height(&txt_coords) - size.y - (lv_font_get_line_height(font)));
+            lv_anim_set_exec_cb(&a, set_ofs_y_anim);
+
+            lv_anim_t * anim_cur = lv_anim_get(obj, set_ofs_y_anim);
+            int32_t act_time = 0;
+            bool playback_now = false;
+            if(anim_cur) {
+                act_time = anim_cur->act_time;
+                playback_now = anim_cur->playback_now;
+            }
+            if(act_time < a.time) {
+                a.act_time = act_time;      /*To keep the old position*/
+                a.early_apply = 0;
+                if(playback_now) {
+                    a.playback_now = 1;
+                    /*Swap the start and end values*/
+                    int32_t tmp;
+                    tmp      = a.start_value;
+                    a.start_value = a.end_value;
+                    a.end_value   = tmp;
+                }
+            }
+
+            lv_anim_set_time(&a, lv_anim_speed_to_time(anim_speed, a.start_value, a.end_value));
+            lv_anim_set_playback_time(&a, a.time);
+            lv_anim_start(&a);
+        }
+        else {
+            /*Delete the offset animation if not required*/
+            lv_anim_del(obj, set_ofs_y_anim);
+            label->offset.y = 0;
+        }
+
         if(size.x > lv_area_get_width(&txt_coords)) {
 #if LV_USE_BIDI
             int32_t start, end;
@@ -984,40 +1021,6 @@ static void lv_label_refr_text(lv_obj_t * obj)
             lv_anim_del(obj, set_ofs_x_anim);
             label->offset.x = 0;
         }
-
-        if(size.y > lv_area_get_height(&txt_coords) && hor_anim == false) {
-            lv_anim_set_values(&a, 0, lv_area_get_height(&txt_coords) - size.y - (lv_font_get_line_height(font)));
-            lv_anim_set_exec_cb(&a, set_ofs_y_anim);
-
-            lv_anim_t * anim_cur = lv_anim_get(obj, set_ofs_y_anim);
-            int32_t act_time = 0;
-            bool playback_now = false;
-            if(anim_cur) {
-                act_time = anim_cur->act_time;
-                playback_now = anim_cur->playback_now;
-            }
-            if(act_time < a.time) {
-                a.act_time = act_time;      /*To keep the old position*/
-                a.early_apply = 0;
-                if(playback_now) {
-                    a.playback_now = 1;
-                    /*Swap the start and end values*/
-                    int32_t tmp;
-                    tmp      = a.start_value;
-                    a.start_value = a.end_value;
-                    a.end_value   = tmp;
-                }
-            }
-
-            lv_anim_set_time(&a, lv_anim_speed_to_time(anim_speed, a.start_value, a.end_value));
-            lv_anim_set_playback_time(&a, a.time);
-            lv_anim_start(&a);
-        }
-        else {
-            /*Delete the offset animation if not required*/
-            lv_anim_del(obj, set_ofs_y_anim);
-            label->offset.y = 0;
-        }
     }
     /*In roll inf. mode keep the size but start offset animations*/
     else if(label->long_mode == LV_LABEL_LONG_SCROLL_CIRCULAR) {
@@ -1030,6 +1033,33 @@ static void lv_label_refr_text(lv_obj_t * obj)
         lv_anim_set_repeat_count(&a, LV_ANIM_REPEAT_INFINITE);
 
         bool hor_anim = false;
+
+                if(size.y > lv_area_get_height(&txt_coords) && hor_anim == false) {
+            lv_anim_set_values(&a, 0, -size.y - (lv_font_get_line_height(font)));
+            lv_anim_set_exec_cb(&a, set_ofs_y_anim);
+            lv_anim_set_time(&a, lv_anim_speed_to_time(anim_speed, a.start_value, a.end_value));
+
+            lv_anim_t * anim_cur = lv_anim_get(obj, set_ofs_y_anim);
+            int32_t act_time = anim_cur ? anim_cur->act_time : 0;
+
+            /*If a template animation exists, consider it's start delay and repeat delay*/
+            if(anim_template) {
+                a.act_time = anim_template->act_time;
+                a.repeat_delay = anim_template->repeat_delay;
+            }
+            else if(act_time < a.time) {
+                a.act_time = act_time;      /*To keep the old position when the label text is updated mid-scrolling*/
+                a.early_apply = 0;
+            }
+
+            lv_anim_start(&a);
+        }
+        else {
+            /*Delete the offset animation if not required*/
+            lv_anim_del(obj, set_ofs_y_anim);
+            label->offset.y = 0;
+        }
+
         if(size.x > lv_area_get_width(&txt_coords)) {
 #if LV_USE_BIDI
             int32_t start, end;
@@ -1076,31 +1106,6 @@ static void lv_label_refr_text(lv_obj_t * obj)
             label->offset.x = 0;
         }
 
-        if(size.y > lv_area_get_height(&txt_coords) && hor_anim == false) {
-            lv_anim_set_values(&a, 0, -size.y - (lv_font_get_line_height(font)));
-            lv_anim_set_exec_cb(&a, set_ofs_y_anim);
-            lv_anim_set_time(&a, lv_anim_speed_to_time(anim_speed, a.start_value, a.end_value));
-
-            lv_anim_t * anim_cur = lv_anim_get(obj, set_ofs_y_anim);
-            int32_t act_time = anim_cur ? anim_cur->act_time : 0;
-
-            /*If a template animation exists, consider it's start delay and repeat delay*/
-            if(anim_template) {
-                a.act_time = anim_template->act_time;
-                a.repeat_delay = anim_template->repeat_delay;
-            }
-            else if(act_time < a.time) {
-                a.act_time = act_time;      /*To keep the old position when the label text is updated mid-scrolling*/
-                a.early_apply = 0;
-            }
-
-            lv_anim_start(&a);
-        }
-        else {
-            /*Delete the offset animation if not required*/
-            lv_anim_del(obj, set_ofs_y_anim);
-            label->offset.y = 0;
-        }
     }
     else if(label->long_mode == LV_LABEL_LONG_DOT) {
         if(size.y <= lv_area_get_height(&txt_coords)) { /*No dots are required, the text is short enough*/

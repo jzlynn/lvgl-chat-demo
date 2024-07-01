@@ -23,12 +23,12 @@ prefix 			?= /usr
 bindir 			?= $(prefix)/bin
 
 #Collect the files to compile
-MAINSRC = 		./main.c
+MAINSRC = 		./main-demo.c
 
 include $(LVGL_DIR)/lvgl/lvgl.mk
 include $(LVGL_DIR)/lv_drivers/lv_drivers.mk
 
-CSRCS 			+=$(LVGL_DIR)/mouse_cursor_icon.c 
+CSRCS 			+=$(LVGL_DIR)/mouse_cursor_icon.c
 
 OBJEXT 			?= .o
 
@@ -49,12 +49,12 @@ $(BUILD_OBJ_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	@$(CC)  $(CFLAGS) -c $< -o $@
 	@echo "CC $<"
-    
+
 default: $(TARGET)
 	@mkdir -p $(dir $(BUILD_BIN_DIR)/)
 	$(CC) -o $(BUILD_BIN_DIR)/$(BIN) $(TARGET) $(CFLAGS) $(LDFLAGS)
 
-clean: 
+clean:
 	rm -rf $(BUILD_DIR)
 
 install:

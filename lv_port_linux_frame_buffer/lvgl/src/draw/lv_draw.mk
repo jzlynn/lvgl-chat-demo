@@ -11,6 +11,9 @@ CSRCS += lv_draw_triangle.c
 CSRCS += lv_img_buf.c
 CSRCS += lv_img_cache.c
 CSRCS += lv_img_decoder.c
+CSRCS += child_bg1.c
+CSRCS += hor_bg1.c
+CSRCS += hor_bg2.c
 
 DEPPATH += --dep-path $(LVGL_DIR)/$(LVGL_DIR_NAME)/src/draw
 VPATH += :$(LVGL_DIR)/$(LVGL_DIR_NAME)/src/draw

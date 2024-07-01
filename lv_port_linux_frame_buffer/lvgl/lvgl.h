@@ -61,6 +61,8 @@ extern "C" {
 
 #include "src/draw/lv_draw.h"
 
+#include "src/draw/child_bg1.h"
+
 #include "src/lv_api_map.h"
 
 /*-----------------

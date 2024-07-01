@@ -30,6 +30,11 @@ extern "C" {
 #include "lv_draw_transform.h"
 #include "lv_draw_layer.h"
 
+#include "child_bg1.h"
+#include "hor_bg1.h"
+#include "hor_bg2.h"
+
+
 /*********************
  *      DEFINES
  *********************/

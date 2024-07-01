@@ -232,6 +232,30 @@ LV_FONT_DECLARE(lv_font_dejavu_16_persian_hebrew)
 LV_FONT_DECLARE(lv_font_simsun_16_cjk)
 #endif
 
+#if LV_FONT_SONG_COMMON3K5_14
+LV_FONT_DECLARE(lv_font_song_common3k5_14)
+#endif
+
+#if LV_FONT_SONG_COMMON3K5_20
+LV_FONT_DECLARE(lv_font_song_common3k5_20)
+#endif
+
+#if LV_FONT_SONG_ALL_16
+LV_FONT_DECLARE(lv_font_song_all_16)
+#endif
+
+#if LV_FONT_LXGW_24
+LV_FONT_DECLARE(lv_font_lxgw_24)
+#endif
+
+
+#if LV_FONT_SANS_COMMON3K5_16
+LV_FONT_DECLARE(lv_font_sans_common3k5_16)
+#endif
+
+
+
+
 #if LV_FONT_UNSCII_8
 LV_FONT_DECLARE(lv_font_unscii_8)
 #endif
