@@ -1,4 +1,4 @@
-# duo-lvgl-fb-demo
+# lvgl-chat-demo
 
 ## 下载交叉编译工具链
 下载工具链：
@@ -25,4 +25,7 @@ git clone https://gitcode.com/lvgl/lv_port_linux_frame_buffer.git
 cd lv_port_linux_frame_buffer
 git submodule update --init --recursive
 ```
-
+## 说明
+设置工具链路径后，编译main.c，将demo放到连好屏幕的开发板上进，并使用chat_test.py来进行测试。
+预期效果：
+teminal提供问答输入，大模型返回回答后将文字发送到屏幕上进行滚动循环显示。
